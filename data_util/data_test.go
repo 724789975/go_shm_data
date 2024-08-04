@@ -585,9 +585,8 @@ func Test_Data_Test(t *testing.T) {
 		}()
 	}
 
-	time.Sleep(time.Second * 1)
-
 	fmt.Println("test data 3333 cache size:", dm.GetCacheSize(), shm_t1.GetLeftSize())
+	time.Sleep(time.Second * 100)
 
 	wg.Wait()
 

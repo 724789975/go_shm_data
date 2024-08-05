@@ -2,10 +2,11 @@ package share_mem_test
 
 import (
 	"fmt"
-	"goshm/shm_pool/pool_interface"
 	"os"
 	"runtime/debug"
 	"testing"
+
+	"github.com/724789975/go_shm_data/shm_pool/pool_interface"
 )
 
 func TestMain(m *testing.M) {

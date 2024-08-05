@@ -3,7 +3,8 @@ package data_util
 import (
 	"cmp"
 	"fmt"
-	"goshm/lru_cache"
+
+	"github.com/724789975/go_shm_data/lru_cache"
 )
 
 var printTest = false

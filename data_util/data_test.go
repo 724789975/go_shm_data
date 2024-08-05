@@ -2,8 +2,6 @@ package data_util_test
 
 import (
 	"fmt"
-	"goshm/data_util"
-	"goshm/shm_pool/pool_interface"
 	"net/http"
 	"os"
 	"runtime/debug"
@@ -11,6 +9,9 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/724789975/go_shm_data/data_util"
+	"github.com/724789975/go_shm_data/shm_pool/pool_interface"
 )
 
 type TestData2 struct {

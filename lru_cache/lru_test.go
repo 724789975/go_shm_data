@@ -1,8 +1,9 @@
 package lru_cache_test
 
 import (
-	"goshm/lru_cache"
 	"testing"
+
+	"github.com/724789975/go_shm_data/lru_cache"
 )
 
 func Test2(t *testing.T) {

@@ -2,8 +2,9 @@ package pool_interface
 
 import (
 	"fmt"
-	"goshm/shm_pool/pool_list"
-	"goshm/shm_pool/share_mem"
+
+	"github.com/724789975/go_shm_data/shm_pool/pool_list"
+	"github.com/724789975/go_shm_data/shm_pool/share_mem"
 )
 
 type ShmPool[T any] struct {

@@ -109,6 +109,7 @@ func CreateDataMgr[K cmp.Ordered, V any, TSHM any](max_size int,
 						for _, f := range v.fList {
 							f(_du)
 						}
+						dm.lru_cache.Put(k, _du)
 						delete(dm.after_eliminate, k)
 					} else {
 						dm.release_shm_func(&du.ShmData)

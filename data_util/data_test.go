@@ -529,23 +529,23 @@ func Test_Data_Test(t *testing.T) {
 				return fmt.Errorf("shm pre is del")
 			}
 
-			if _, ok := shm.Pre2[td.ID<<16+1]; !ok {
-				shm.Pre2[td.ID<<16+1] = &data_util.DataPreparePtr[int, ShmTestData2]{ShmPtr: shm_t2.Get()}
-				// shm.Pre2[td.ID<<16+1].ShmPtr.OpType = data_util.DataUnitOpTypeAdd
-			}
-			shm.Pre2[td.ID<<16+1].ShmPtr.UesShm = true
-			shm.Pre2[td.ID<<16+1].ShmPtr.Set(td.ID<<16+1, ShmTestData2{
-				ID:   td.ID<<16 + 1,
-				Name: [10]byte{'t', 'e', 's', 't', '2', '1'},
-				Age:  20,
-			})
+			//if _, ok := shm.Pre2[td.ID<<16+1]; !ok {
+			//	shm.Pre2[td.ID<<16+1] = &data_util.DataPreparePtr[int, ShmTestData2]{ShmPtr: shm_t2.Get()}
+			//	// shm.Pre2[td.ID<<16+1].ShmPtr.OpType = data_util.DataUnitOpTypeAdd
+			//}
+			//shm.Pre2[td.ID<<16+1].ShmPtr.UesShm = true
+			//shm.Pre2[td.ID<<16+1].ShmPtr.Set(td.ID<<16+1, ShmTestData2{
+			//	ID:   td.ID<<16 + 1,
+			//	Name: [10]byte{'t', 'e', 's', 't', '2', '1'},
+			//	Age:  20,
+			//})
 
-			if _, ok := shm.Rel2[td.ID<<16+1]; !ok {
-				shm.Rel2[td.ID<<16+1] = &data_util.DataLandingPtr[int, ShmTestData2]{Dirty: true, ShmPtr: shm_t2b.Get()}
-				// shm.Rel2[td.ID<<16+1].ShmPtr.OpType = data_util.DataUnitOpTypeAdd
-			}
-			shm.Rel2[td.ID<<16+1].ShmPtr.UesShm = true
-			shm.Rel2[td.ID<<16+1].ShmPtr.Set(td.ID<<16+1, shm.Pre2[td.ID<<16+1].ShmPtr.Data)
+			//if _, ok := shm.Rel2[td.ID<<16+1]; !ok {
+			//	shm.Rel2[td.ID<<16+1] = &data_util.DataLandingPtr[int, ShmTestData2]{Dirty: true, ShmPtr: shm_t2b.Get()}
+			//	// shm.Rel2[td.ID<<16+1].ShmPtr.OpType = data_util.DataUnitOpTypeAdd
+			//}
+			//shm.Rel2[td.ID<<16+1].ShmPtr.UesShm = true
+			//shm.Rel2[td.ID<<16+1].ShmPtr.Set(td.ID<<16+1, shm.Pre2[td.ID<<16+1].ShmPtr.Data)
 
 			shm.Pre.ShmPtr.Recorded = false
 			shm.Pre.ShmPtr.Data.Age = td.Age
@@ -590,7 +590,7 @@ func Test_Data_Test(t *testing.T) {
 
 	wg.Wait()
 
-	for i := 0; i < 9030; i++ {
+	for i := 0; i < 10030; i++ {
 		wg.Add(1)
 		k := i
 		go func() {
@@ -623,8 +623,8 @@ func Test_Data_Test(t *testing.T) {
 	}
 
 	wg.Wait()
-
+	time.Sleep(time.Second * 1)
 	fmt.Println("test data 4444 cache size:", dm.GetCacheSize(), shm_t1.GetLeftSize())
-	time.Sleep(time.Second * 100000)
+	time.Sleep(time.Second * 1)
 
 }

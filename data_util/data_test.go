@@ -573,7 +573,7 @@ func Test_Data_Test(t *testing.T) {
 		func() {
 			k := i
 			ch1 := make(chan bool)
-			dm.NewData(k, k, TestData{ID: k, Name: [10]byte{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'}, Age: 20}, func(v *TestData, err error) {
+			dm.NewData(k, k, TestData{ID: k, Name: [10]byte{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'}, Age: 20}, func(v TestData, err error) {
 				if err != nil {
 					fmt.Println("new data error:", err)
 					ch1 <- false
@@ -587,7 +587,7 @@ func Test_Data_Test(t *testing.T) {
 	}
 
 	fmt.Println("test data 3333 cache size:", dm.GetCacheSize(), shm_t1.GetLeftSize())
-	time.Sleep(time.Second * 100)
+	time.Sleep(time.Second * 1)
 
 	wg.Wait()
 

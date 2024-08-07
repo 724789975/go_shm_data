@@ -241,18 +241,18 @@ func (dm *DataMgr[K, V, TSHM]) PushData(k K, h int, v V, shm TSHM) {
 }
 
 // 上层保证key的唯一性
-func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(*V, error)) {
+func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(V, error)) {
 	dm.op_list <- func() {
 
 		if _, ok := dm.lru_cache.Get(k); ok {
 			//已有数据
-			cb(&v, NewDataErr(ErrCodeDataAlreadyExists))
+			cb(v, NewDataErr(ErrCodeDataAlreadyExists))
 			return
 		}
 
 		if _, ok := dm.wait_eliminate[k]; ok {
 			//已有数据
-			cb(&v, NewDataErr(ErrCodeDataAlreadyExists))
+			cb(v, NewDataErr(ErrCodeDataAlreadyExists))
 			return
 		}
 
@@ -261,7 +261,7 @@ func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(*V, error)) {
 			// 在load_list中加载数据
 			if err := dm.data_create_func(k, v); err != nil {
 				ch <- func() {
-					cb(&v, err)
+					cb(v, err)
 				}
 				return
 			}
@@ -269,13 +269,13 @@ func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(*V, error)) {
 			ch <- func() {
 				shm, err := dm.fetch_shm_func()
 				if err != nil {
-					cb(&v, err)
+					cb(v, err)
 					return
 				}
 				dm.data_load_func(&v, &shm)
 				du := CreateDataUnit(v, shm, dm.data_landing_func, dm.getDataLandingFunc(h))
 				dm.lru_cache.Put(k, du)
-				cb(&du.Data, nil)
+				cb(du.Data, nil)
 			}
 		})
 

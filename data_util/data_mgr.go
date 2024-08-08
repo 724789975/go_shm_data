@@ -23,7 +23,7 @@ type reuseEliminate[V any, TSHM any] struct {
 type DataMgr[K cmp.Ordered, V any, TSHM any] struct {
 	lru_cache         *lru_cache.LRUCache[K, *DataUnit[V, TSHM]]
 	load_data_func    func(K) (V, error)
-	load_func         func()
+	load_func         func(*DataMgr[K, V , TSHM])
 	fetch_shm_func    func() (TSHM, error)
 	release_shm_func  func(*TSHM)
 	data_del_func     func(*DataUnit[V, TSHM])
@@ -52,7 +52,7 @@ type DataMgr[K cmp.Ordered, V any, TSHM any] struct {
  */
 func CreateDataMgr[K cmp.Ordered, V any, TSHM any](max_size int,
 	load_data_func func(K) (V, error),
-	load_func func(),
+	load_func func(*DataMgr[K, V , TSHM]),
 	fetch_shm_func func() (TSHM, error),
 	release_shm_func func(*TSHM),
 	data_del_func func(*DataUnit[V, TSHM]),
@@ -142,7 +142,7 @@ func CreateDataMgr[K cmp.Ordered, V any, TSHM any](max_size int,
 	}()
 
 	dm.op_list <- func() {
-		dm.load_func()
+		dm.load_func(dm)
 	}
 	return dm
 }

@@ -297,7 +297,7 @@ func TestMain(m *testing.M) {
 
 	dm = data_util.CreateDataMgr(testDataLen/2,
 		load_data_func,
-		func() {
+		func(_dm *data_util.DataMgr[int, TestData, ShmTestDatas]) {
 			mapPre1 := make(map[int]*data_util.PoolData[int, ShmTestData])
 			pa := make([]*data_util.PoolData[int, ShmTestData], 0)
 			for i := 0; i < testDataLen; i++ {
@@ -449,7 +449,7 @@ func TestMain(m *testing.M) {
 				}
 
 				mk[k] = true
-				dm.PushData(k, k, td, shmtd)
+				_dm.PushData(k, k, td, shmtd)
 			}
 
 			for _, v := range mapRel2 {
@@ -587,7 +587,7 @@ func Test_Data_Test(t *testing.T) {
 	}
 
 	fmt.Println("test data 3333 cache size:", dm.GetCacheSize(), shm_t1.GetLeftSize())
-	time.Sleep(time.Second * 100)
+	time.Sleep(time.Second * 1)
 
 	wg.Wait()
 

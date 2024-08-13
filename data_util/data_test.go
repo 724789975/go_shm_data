@@ -241,11 +241,11 @@ func TestMain(m *testing.M) {
 	}
 	// data_new_func
 	mk := make(map[int]bool)
-	data_new_func := func(k int, td TestData) error {
+	data_new_func := func(k int, td TestData) (TestData, error) {
 		if _, ok := mk[k]; ok {
-			return data_util.NewDataErr(data_util.ErrCodeDataAlreadyExists)
+			return TestData{}, data_util.NewDataErr(data_util.ErrCodeDataAlreadyExists)
 		}
-		return nil
+		return TestData{}, nil
 	}
 	data_landing_func := func(du *data_util.DataUnit[TestData, ShmTestDatas]) {
 		shmd := &du.ShmData

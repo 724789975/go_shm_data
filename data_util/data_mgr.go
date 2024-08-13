@@ -28,7 +28,7 @@ type DataMgr[K cmp.Ordered, V any, TSHM any] struct {
 	release_shm_func  func(*TSHM)
 	data_del_func     func(*DataUnit[V, TSHM])
 	data_load_func    func(*V, *TSHM)
-	data_create_func  func(k K, v V) error
+	data_create_func  func(k K, v V) (V, error)
 	data_landing_func func(*DataUnit[V, TSHM])
 	load_list         [64]chan func()
 	op_list           chan func()
@@ -57,7 +57,7 @@ func CreateDataMgr[K cmp.Ordered, V any, TSHM any](max_size int,
 	release_shm_func func(*TSHM),
 	data_del_func func(*DataUnit[V, TSHM]),
 	data_load_func func(*V, *TSHM),
-	data_create_func func(k K, v V) error,
+	data_create_func func(k K, v V) (V, error),
 	data_landing_func func(*DataUnit[V, TSHM]),
 ) *DataMgr[K, V, TSHM] {
 	dm := &DataMgr[K, V, TSHM]{
@@ -259,7 +259,8 @@ func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(V, error)) {
 		ch := make(chan func())
 		dm.getDataLandingFunc(h)(func() {
 			// 在load_list中加载数据
-			if err := dm.data_create_func(k, v); err != nil {
+			_v, err := dm.data_create_func(k, v);
+			if err != nil {
 				ch <- func() {
 					cb(v, err)
 				}
@@ -272,8 +273,8 @@ func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(V, error)) {
 					cb(v, err)
 					return
 				}
-				dm.data_load_func(&v, &shm)
-				du := CreateDataUnit(v, shm, dm.data_landing_func, dm.getDataLandingFunc(h))
+				dm.data_load_func(&_v, &shm)
+				du := CreateDataUnit(_v, shm, dm.data_landing_func, dm.getDataLandingFunc(h))
 				dm.lru_cache.Put(k, du)
 				cb(du.Data, nil)
 			}

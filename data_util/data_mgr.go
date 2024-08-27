@@ -7,7 +7,7 @@ import (
 	"github.com/724789975/go_shm_data/lru_cache"
 )
 
-var printTest = false
+var PrintTest = false
 
 type opStruct[K cmp.Ordered, V any, TSHM any] struct {
 	cb func(K, error)
@@ -23,7 +23,7 @@ type reuseEliminate[V any, TSHM any] struct {
 type DataMgr[K cmp.Ordered, V any, TSHM any] struct {
 	lru_cache         *lru_cache.LRUCache[K, *DataUnit[V, TSHM]]
 	load_data_func    func(K) (V, error)
-	load_func         func(*DataMgr[K, V , TSHM])
+	load_func         func(*DataMgr[K, V, TSHM])
 	fetch_shm_func    func() (TSHM, error)
 	release_shm_func  func(*TSHM)
 	data_del_func     func(*DataUnit[V, TSHM])
@@ -52,7 +52,7 @@ type DataMgr[K cmp.Ordered, V any, TSHM any] struct {
  */
 func CreateDataMgr[K cmp.Ordered, V any, TSHM any](max_size int,
 	load_data_func func(K) (V, error),
-	load_func func(*DataMgr[K, V , TSHM]),
+	load_func func(*DataMgr[K, V, TSHM]),
 	fetch_shm_func func() (TSHM, error),
 	release_shm_func func(*TSHM),
 	data_del_func func(*DataUnit[V, TSHM]),
@@ -76,7 +76,7 @@ func CreateDataMgr[K cmp.Ordered, V any, TSHM any](max_size int,
 
 	//淘汰处理
 	dm.lru_cache = lru_cache.CreateLRUCache(max_size, func(k K, du *DataUnit[V, TSHM]) {
-		if printTest {
+		if PrintTest {
 			fmt.Printf("will eliminate data: %v\n", k)
 		}
 		if _, ok := dm.wait_eliminate[k]; ok {
@@ -89,20 +89,17 @@ func CreateDataMgr[K cmp.Ordered, V any, TSHM any](max_size int,
 		}()
 		dm.wait_eliminate[k] = du
 		du.op <- func(v *V, shm *TSHM) error {
-			if printTest {
+			if PrintTest {
 				fmt.Printf("will eliminate data for landing : %v\n", k)
 			}
 			du.Landing(du)
 			ch <- func() {
 				dm.op_list <- func() {
-					if printTest {
+					if PrintTest {
 						fmt.Printf("do eliminate data: %v\n", k)
 					}
 					if _, ok := dm.wait_eliminate[k]; !ok {
 						panic("data is not being eliminated")
-					}
-					if printTest {
-						fmt.Printf("do eliminate data for release: %v\n", k)
 					}
 					if v, ok := dm.after_eliminate[k]; ok {
 						dm.data_load_func(&du.Data, shm)
@@ -113,6 +110,9 @@ func CreateDataMgr[K cmp.Ordered, V any, TSHM any](max_size int,
 						dm.lru_cache.Put(k, _du)
 						delete(dm.after_eliminate, k)
 					} else {
+						if PrintTest {
+							fmt.Printf("do eliminate data for release: %v\n", k)
+						}
 						dm.release_shm_func(&du.ShmData)
 					}
 					delete(dm.wait_eliminate, k)
@@ -259,7 +259,7 @@ func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(V, error)) {
 		ch := make(chan func())
 		dm.getDataLandingFunc(h)(func() {
 			// 在load_list中加载数据
-			_v, err := dm.data_create_func(k, v);
+			_v, err := dm.data_create_func(k, v)
 			if err != nil {
 				ch <- func() {
 					cb(v, err)
@@ -274,6 +274,9 @@ func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(V, error)) {
 					return
 				}
 				dm.data_load_func(&_v, &shm)
+				if PrintTest {
+					fmt.Printf("load data %v, %v", k, shm)
+				}
 				du := CreateDataUnit(_v, shm, dm.data_landing_func, dm.getDataLandingFunc(h))
 				dm.lru_cache.Put(k, du)
 				cb(du.Data, nil)
@@ -364,6 +367,9 @@ func (dm *DataMgr[K, V, TSHM]) OpData(key K, h int, cb func(K, error), f func(*V
 					dm.op_list <- func() {
 						// fmt.Printf("load data 444444444444444 %v\n", key)
 						dm.data_load_func(&d, &_shm)
+						if PrintTest {
+							fmt.Printf("load data %v, %v", key, _shm)
+						}
 						du := CreateDataUnit(d, _shm, dm.data_landing_func, dm.getDataLandingFunc(h))
 						for _, op := range dm.data_op_list[key] {
 							du.op <- op.f

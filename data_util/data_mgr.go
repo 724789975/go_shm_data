@@ -275,7 +275,7 @@ func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(V, error)) {
 				}
 				dm.data_load_func(&_v, &shm)
 				if PrintTest {
-					fmt.Printf("load data %v, %v", k, shm)
+					fmt.Printf("load data %v, %+v\n", k, shm)
 				}
 				du := CreateDataUnit(_v, shm, dm.data_landing_func, dm.getDataLandingFunc(h))
 				dm.lru_cache.Put(k, du)

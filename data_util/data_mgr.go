@@ -268,6 +268,9 @@ func (dm *DataMgr[K, V, TSHM]) NewData(k K, h int, v V, cb func(V, error)) {
 			}
 
 			ch <- func() {
+				if _, ok := dm.lru_cache.Get(k); ok {
+					panic(fmt.Sprintf("data %v already exists", k))
+				}
 				shm, err := dm.fetch_shm_func()
 				if err != nil {
 					cb(v, err)

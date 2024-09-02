@@ -371,7 +371,7 @@ func (dm *DataMgr[K, V, TSHM]) OpData(key K, h int, cb func(K, error), f func(*V
 						// fmt.Printf("load data 444444444444444 %v\n", key)
 						dm.data_load_func(&d, &_shm)
 						if PrintTest {
-							fmt.Printf("load data %v, %v", key, _shm)
+							fmt.Printf("load data %v, %+v\n", key, _shm)
 						}
 						du := CreateDataUnit(d, _shm, dm.data_landing_func, dm.getDataLandingFunc(h))
 						for _, op := range dm.data_op_list[key] {

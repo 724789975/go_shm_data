@@ -368,12 +368,18 @@ func (dm *DataMgr[K, V, TSHM]) OpData(key K, h int, cb func(K, error), f func(*V
 					}
 
 					dm.op_list <- func() {
-						// fmt.Printf("load data 444444444444444 %v\n", key)
-						dm.data_load_func(&d, &_shm)
-						if PrintTest {
-							fmt.Printf("load data %v, %+v\n", key, _shm)
+						//存在 创建后 马上load的情况 因此这里 需要判断下 是不是已经加载好了
+						du, ok := dm.lru_cache.Get(key)
+						if ok {
+							dm.release_shm_func(&_shm)
+						} else {
+							dm.data_load_func(&d, &_shm)
+							if PrintTest {
+								fmt.Printf("load data %v, %+v\n", key, _shm)
+							}
+							du = CreateDataUnit(d, _shm, dm.data_landing_func, dm.getDataLandingFunc(h))
 						}
-						du := CreateDataUnit(d, _shm, dm.data_landing_func, dm.getDataLandingFunc(h))
+
 						for _, op := range dm.data_op_list[key] {
 							du.op <- op.f
 							op.cb(key, nil)
